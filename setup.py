@@ -237,7 +237,7 @@ def get_extensions():
     flash_version = "0.0.0"
 
     if (
-        (torch.cuda.is_available() and ((CUDA_HOME is not None)))
+        (torch.cuda.is_available() and torch.version.cuda and ((CUDA_HOME is not None)))
         or os.getenv("FORCE_CUDA", "0") == "1"
         or os.getenv("TORCH_CUDA_ARCH_LIST", "") != ""
     ):
@@ -291,7 +291,7 @@ def get_extensions():
             "--ptxas-options=-O2",
             "--ptxas-options=-allow-expensive-optimizations=true",
         ]
-    elif torch.cuda.is_available() and torch.version.hip: 
+    elif torch.version.hip: 
        rename_cpp_cu(source_hip)
        source_hip_cu = glob.glob(os.path.join(extensions_dir, "attention", "hip_fmha", "*.cu"), recursive=True) 
        extension = CUDAExtension

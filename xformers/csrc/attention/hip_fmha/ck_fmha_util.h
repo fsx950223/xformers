@@ -5,11 +5,14 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <ATen/cuda/CUDAGeneratorImpl.h>
 #include <torch/torch.h>
 
 #include <ck/ck.hpp>
 #include <ck/utility/data_type.hpp>
 #include <ck/utility/sequence.hpp>
+
+#define NEW_UNPACK (TORCH_VERSION_MAJOR * 10000 + TORCH_VERSION_MINOR * 100 + TORCH_VERSION_PATCH) > 11300
 
 #define XFORMERS_CHECK(COND, ERR)          \
   if (!(COND)) {                           \
@@ -89,6 +92,24 @@ static inline size_t get_size_in_bytes(size_t n, at::ScalarType dtype) {
   }
   return 0;
 }
+
+
+static std::tuple<uint64_t, uint64_t> unpack(at::PhiloxCudaState arg) {
+  if (arg.captured_) {
+#if NEW_UNPACK
+    return std::make_tuple(static_cast<uint64_t>(*arg.seed_.ptr), static_cast<uint64_t>(*(arg.offset_.ptr) + arg.offset_intragraph_));
+#else
+    return std::make_tuple(arg.seed_, static_cast<uint64_t>(*(arg.offset_.ptr) + arg.offset_intragraph_));
+#endif
+  } else {
+#if NEW_UNPACK
+    return std::make_tuple(arg.seed_.val, arg.offset_.val);
+#else
+    return std::make_tuple(arg.seed_, arg.offset_.val);
+#endif
+  }
+}
+
 
 /**
  * kernels expect 4D bias/bias.grad with shape

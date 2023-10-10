@@ -48,7 +48,7 @@ at::Tensor rand_uniform_int(
     rng_engine_inputs = gen->philox_cuda_state(B * num_heads * M * N);
   }
 
-  const auto seeds = at::cuda::philox::unpack(rng_engine_inputs);
+  const auto seeds = unpack(rng_engine_inputs);
 
   int64_t philox_seed = std::get<0>(seeds);
   int64_t philox_offset = std::get<1>(seeds);

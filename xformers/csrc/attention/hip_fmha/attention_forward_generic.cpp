@@ -119,7 +119,7 @@ efficient_attention_forward_ck(
     // attention tensor
     rng_engine_inputs = gen->philox_cuda_state(B * num_heads * M * N);
 
-    const auto seeds = at::cuda::philox::unpack(rng_engine_inputs);
+    const auto seeds = unpack(rng_engine_inputs);
 
     philox_seed = std::get<0>(seeds);
     philox_offset = std::get<1>(seeds);

@@ -8,7 +8,7 @@ import textwrap
 from collections import deque
 from typing import List, Sequence, Type, TypeVar
 
-from . import cutlass, decoder, flash, small_k, triton
+from . import cutlass, ck, decoder, flash, small_k, triton
 from .common import AttentionBwOpBase, AttentionFwOpBase, Inputs
 
 
@@ -78,6 +78,7 @@ def _dispatch_fw(inp: Inputs, needs_gradient: bool) -> Type[AttentionFwOpBase]:
             flash.FwOp,
             triton.FwOp,
             cutlass.FwOp,
+            ck.FwOp,
             small_k.FwOp,
         ]
     )
@@ -106,6 +107,7 @@ def _dispatch_bw(inp: Inputs) -> Type[AttentionBwOpBase]:
     priority_list_ops: List[Type[AttentionBwOpBase]] = [
         flash.BwOp,
         cutlass.BwOp,
+        ck.BwOp,
         # CUDA illegal memory issues, race conditions etc..
         # triton.BwOp,
         # Deprecated

@@ -333,7 +333,7 @@ def get_extensions():
             "--ptxas-options=-O2",
             "--ptxas-options=-allow-expensive-optimizations=true",
         ]
-    elif torch.cuda.is_available() and torch.version.hip: 
+    elif torch.version.hip: 
        rename_cpp_cu(source_hip)
        source_hip_cu = []
        for ff in source_hip:
